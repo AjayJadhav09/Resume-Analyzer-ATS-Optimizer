@@ -5,6 +5,8 @@ import com.ajay.resume_analyzer.entity.Resume;
 import com.ajay.resume_analyzer.entity.User;
 import com.ajay.resume_analyzer.exception.InvalidResumeException;
 import com.ajay.resume_analyzer.repository.ResumeRepository;
+import com.ajay.resume_analyzer.service.parser.ResumeParser;
+import com.ajay.resume_analyzer.service.parser.ResumeParserFactory;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.UUID;
@@ -27,7 +30,7 @@ public class ResumeServiceImpl implements ResumeService {
     private String uploadDir;
 
     private final ResumeRepository resumeRepository;
-
+    private final ResumeParserFactory parserFactory;
     @PostConstruct
     public void init() {
         try {
@@ -60,6 +63,7 @@ public class ResumeServiceImpl implements ResumeService {
 
             // 4. Use Path.of()
             Path targetLocation = Path.of(uploadDir).toAbsolutePath().normalize().resolve(fileName);
+            log.info(String.valueOf(targetLocation));
 
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
@@ -90,6 +94,33 @@ public class ResumeServiceImpl implements ResumeService {
             // 6. Logging error
             log.error("Failed to upload resume: {}", originalFileName, e);
             throw new RuntimeException("Failed to upload resume", e);
+        }
+    }
+
+    @Override
+    public String parseResume(Long resumeId) {
+
+        Resume resume = resumeRepository.findById(resumeId)
+                .orElseThrow(() ->
+                        new RuntimeException("Resume not found"));
+
+        File file = new File(resume.getFilePath());
+
+        if (!file.exists()) {
+            throw new RuntimeException("Resume file not found.");
+        }
+
+        try {
+
+            ResumeParser parser =
+                    parserFactory.getParser(resume.getFileType());
+
+            return parser.extractText(file);
+
+        } catch (IOException e) {
+
+            throw new RuntimeException("Unable to parse resume", e);
+
         }
     }
 

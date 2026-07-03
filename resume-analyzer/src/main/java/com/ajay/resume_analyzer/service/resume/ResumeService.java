@@ -6,4 +6,5 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface ResumeService {
     ResumeResponse uploadResume(MultipartFile file, Authentication authentication);
+    String parseResume(Long resumeId);
 }

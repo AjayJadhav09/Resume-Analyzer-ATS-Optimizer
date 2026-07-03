@@ -1,5 +1,6 @@
 package com.ajay.resume_analyzer.controller;
 
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,4 +13,6 @@ public class Test {
     public String test() {
         return "JWT Authentication Working!";
     }
+
+
 }

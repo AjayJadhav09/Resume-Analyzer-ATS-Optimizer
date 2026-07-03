@@ -1,0 +1,28 @@
+package com.ajay.resume_analyzer.service.parser;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.io.IOException;
+
+@Service
+@Slf4j
+public class PdfResumeParser implements ResumeParser {
+
+    @Override
+    public String extractText(File file) throws IOException {
+
+        try (PDDocument document = Loader.loadPDF(file)) {
+
+            PDFTextStripper stripper = new PDFTextStripper();
+
+            return stripper.getText(document);
+
+        }
+
+    }
+}
