@@ -33,4 +33,12 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(errors);
     }
+    @ExceptionHandler(ResumeFileNotFoundException.class)
+    public ResponseEntity<String> handleResumeFileNotFound(
+            ResumeFileNotFoundException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ex.getMessage());
+    }
 }
